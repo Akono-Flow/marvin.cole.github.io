@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower of Hanoi - Recursion Visualizer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --darker-bg: #0a0a0a;
+            --primary: #00cc66;
+            --primary-dark: #00aa44;
+            --primary-light: #33ff99;
+            --text: #ffffff;
+            --text-secondary: #bbbbbb;
+            --error: #ff5555;
+            --success: #33ff99;
+            --warning: #ffcc44;
+            --info: #44aaff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        header {
+            background-color: var(--darker-bg);
+            padding: 15px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 32px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 5px;
+        }
+
+        .tab-button {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            color: var(--text);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            background-color: rgba(0, 204, 102, 0.1);
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px 0;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Game Tab Styles */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--darker-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--darker-bg);
+            text-transform: uppercase;
+        }
+
+        .player-stats {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .player-score {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .game-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .disc-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .disc-selector label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .disc-selector select {
+            background-color: var(--darker-bg);
+            color: var(--text);
+            border: 1px solid var(--primary-dark);
+            padding: 8px 12px;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .disc-selector select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.2);
+        }
+
+        .game-button {
+            background-color: var(--primary);
+            color: var(--darker-bg);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .game-button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .game-button:active {
+            transform: translateY(0);
+        }
+
+        .game-button.secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .game-button.secondary:hover {
+            background-color: rgba(0, 204, 102, 0.1);
+        }
+
+        .moves-timer {
+            display: flex;
+            gap: 20px;
+            font-size: 16px;
+        }
+
+        .moves-display, .timer-display {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .moves-display i, .timer-display i {
+            color: var(--primary);
+        }
+
+        .towers-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding-bottom: 50px;
+        }
+
+        .tower {
+            position: relative;
+            width: 30%;
+            height: 300px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tower:hover .tower-rod {
+            background-color: var(--primary-light);
+        }
+
+        .tower-base {
+            width: 80%;
+            height: 20px;
+            background-color: var(--primary-dark);
+            border-radius: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tower-rod {
+            position: absolute;
+            bottom: 20px;
+            width: 12px;
+            height: 280px;
+            background-color: var(--primary);
+            border-radius: 6px;
+            z-index: 1;
+        }
+
+        .disc {
+            width: calc(20% + var(--size) * 10%);
+            height: 30px;
+            border-radius: 15px;
+            background: linear-gradient(to right, var(--primary-dark), var(--primary), var(--primary-dark));
+            margin-bottom: 5px;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--darker-bg);
+            font-weight: bold;
+            cursor: grab;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .disc:hover {
+            transform: scale(1.02);
+        }
+
+        .disc.dragging {
+            opacity: 0.8;
+            cursor: grabbing;
+        }
+
+        .tower.highlight .tower-rod {
+            background-color: var(--primary-light);
+            box-shadow: 0 0 15px var(--primary-light);
+        }
+
+        .tower.invalid {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .game-status {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background-color: var(--darker-bg);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Highscores tab styles */
+        .highscores-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .highscore-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .highscore-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--darker-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .highscore-table th, .highscore-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .highscore-table th {
+            background-color: rgba(0, 204, 102, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .highscore-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .highscore-table .highlight {
+            background-color: rgba(0, 204, 102, 0.1);
+        }
+
+        /* Learn tab styles */
+        .learn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .learn-section {
+            background-color: var(--darker-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .learn-section h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .learn-section p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .learn-section ul, .learn-section ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .learn-section li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .solution-viewer {
+            margin-top: 20px;
+            border: 1px solid var(--primary-dark);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .solution-header {
+            background-color: rgba(0, 204, 102, 0.1);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .solution-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .solution-steps {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .solution-step {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: var(--darker-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .code-example {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            color: var(--text);
+        }
+
+        .code-comment {
+            color: var(--primary-light);
+        }
+
+        /* Toast Notification Styles */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            min-width: 280px;
+            max-width: 350px;
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            animation: slideIn 0.3s forwards, fadeOut 0.3s 4.7s forwards;
+        }
+
+        @keyframes slideIn {
+            to { transform: translateX(0); }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateX(120%); }
+        }
+
+        .toast-success {
+            background-color: rgba(51, 255, 153, 0.2);
+            border-left: 4px solid var(--success);
+        }
+
+        .toast-error {
+            background-color: rgba(255, 85, 85, 0.2);
+            border-left: 4px solid var(--error);
+        }
+
+        .toast-warning {
+            background-color: rgba(255, 204, 68, 0.2);
+            border-left: 4px solid var(--warning);
+        }
+
+        .toast-info {
+            background-color: rgba(68, 170, 255, 0.2);
+            border-left: 4px solid var(--info);
+        }
+
+        .toast-icon {
+            font-size: 20px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .toast-dismiss {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .toast-dismiss:hover {
+            opacity: 1;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background-color: var(--darker-bg);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            background-color: rgba(0, 204, 102, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.2);
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .tab-button {
+                flex: 1;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .game-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .towers-container {
+                height: 350px;
+            }
+
+            .tower {
+                width: 33%;
+            }
+
+            .tower-base {
+                width: 90%;
+            }
+
+            .disc {
+                width: calc(30% + var(--size) * 10%);
+                height: 25px;
+                border-radius: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .game-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .moves-timer {
+                width: 100%;
+                justify-content: space-around;
+                margin-top: 10px;
+            }
+
+            .disc {
+                width: calc(40% + var(--size) * 8%);
+                height: 20px;
+                border-radius: 10px;
+                font-size: 12px;
+            }
+
+            .tower-rod {
+                width: 10px;
+            }
+        }
+
+        /* Winning animation */
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .celebrate {
+            animation: celebrate 0.5s ease infinite;
+        }
+
+        /* Game completed modal styles */
+        .game-complete-modal .modal-body {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .game-complete-icon {
+            font-size: 60px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .promo-text {
+            color: var(--text-secondary);
+            margin: 15px 0;
+        }
+
+        /* Import/Export styles */
+        .import-export-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .exported-json {
+            width: 100%;
+            height: 100px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            resize: none;
+        }
+
+        /* Additional polish */
+        .disc-glow {
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .tower-indicator {
+            position: absolute;
+            bottom: -40px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .hint-highlight {
+            background-color: rgba(0, 204, 102, 0.3);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { background-color: rgba(0, 204, 102, 0.3); }
+            50% { background-color: rgba(0, 204, 102, 0.1); }
+            100% { background-color: rgba(0, 204, 102, 0.3); }
+        }
+        
+        .back-to-dashboard {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            background-color: var(--darker-bg);
+            color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+        }
+        
+        .back-to-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.5);
+            background-color: var(--primary);
+            color: var(--darker-bg);
+        }
+        
+        .back-to-dashboard svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-layer-group logo-icon"></i>
+                <h1>Tower of Hanoi</h1>
+            </div>
+            <div class="nav-tabs">
+                <button class="tab-button active" data-tab="game">
+                    <i class="fas fa-gamepad"></i> Play
+                </button>
+                <button class="tab-button" data-tab="learn">
+                    <i class="fas fa-book"></i> Learn
+                </button>
+                <button class="tab-button" data-tab="highscores">
+                    <i class="fas fa-trophy"></i> Highscores
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <a href="/" class="back-to-dashboard" title="Back to Dashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </a>
+            <!-- Game Tab -->
+            <div id="game" class="tab-content active">
+                <div class="game-container">
+                    <div class="game-header">
+                        <div class="player-info">
+                            <div class="player-avatar">G</div>
+                            <div class="player-stats">
+                                <div class="player-name">Guest</div>
+                                <div class="player-score">High Score: 0</div>
+                            </div>
+                        </div>
+                        <div class="game-controls">
+                            <div class="disc-selector">
+                                <label for="disc-count">Discs:</label>
+                                <select id="disc-count">
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                </select>
+                            </div>
+                            <button id="new-game-btn" class="game-button">
+                                <i class="fas fa-play"></i> New Game
+                            </button>
+                            <button id="hint-btn" class="game-button secondary">
+                                <i class="fas fa-lightbulb"></i> Hint
+                            </button>
+                            <button id="import-export-btn" class="game-button secondary">
+                                <i class="fas fa-file-export"></i> Import/Export
+                            </button>
+                        </div>
+                        <div class="moves-timer">
+                            <div class="moves-display">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span id="moves-count">0</span> moves
+                            </div>
+                            <div class="timer-display">
+                                <i class="fas fa-clock"></i>
+                                <span id="timer">00:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="towers-container">
+                        <div class="tower" id="tower-1" data-tower="1">
+                            <div class="tower-base"></div>
+                            <div class="tower-rod"></div>
+                            <div class="tower-indicator">A</div>
+                        </div>
+                        <div class="tower" id="tower-2" data-tower="2">
+                            <div class="tower-base"></div>
+                            <div class="tower-rod"></div>
+                            <div class="tower-indicator">B</div>
+                        </div>
+                        <div class="tower" id="tower-3" data-tower="3">
+                            <div class="tower-base"></div>
+                            <div class="tower-rod"></div>
+                            <div class="tower-indicator">C</div>
+                        </div>
+                    </div>
+
+                    <div class="game-status">
+                        Select number of discs and click New Game to start
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learn Tab -->
+            <div id="learn" class="tab-content">
+                <div class="learn-container">
+                    <div class="learn-section">
+                        <h2>Rules of Tower of Hanoi</h2>
+                        <p>The Tower of Hanoi is a classic puzzle with three pegs and a number of discs of different sizes. The puzzle starts with the discs in a neat stack in ascending order of size on one peg, the smallest at the top.</p>
+                        <p>The objective of the puzzle is to move the entire stack to another peg, obeying the following rules:</p>
+                        <ol>
+                            <li>Only one disc can be moved at a time.</li>
+                            <li>Each move consists of taking the upper disc from one of the stacks and placing it on top of another stack or on an empty peg.</li>
+                            <li>No disc may be placed on top of a smaller disc.</li>
+                        </ol>
+                    </div>
+
+                    <div class="learn-section">
+                        <h2>Understanding Recursion</h2>
+                        <p>Tower of Hanoi is a classic example used to teach recursion in computer science. Recursion is a method where the solution to a problem depends on solutions to smaller instances of the same problem.</p>
+                        <p>The recursive solution to the Tower of Hanoi puzzle can be described as:</p>
+                        <ol>
+                            <li>Move n-1 discs from source to auxiliary peg.</li>
+                            <li>Move the largest disc from source to target peg.</li>
+                            <li>Move n-1 discs from auxiliary to target peg.</li>
+                        </ol>
+                        <p>Here's a recursive algorithm in pseudocode:</p>
+                        <pre class="code-example">
+function towerOfHanoi(n, source, auxiliary, target) {
+    <span class="code-comment">// Base case: If only one disc, move it directly</span>
+    if (n == 1) {
+        print("Move disc 1 from " + source + " to " + target)
+        return
+    }
+    
+    <span class="code-comment">// Move n-1 discs from source to auxiliary</span>
+    towerOfHanoi(n - 1, source, target, auxiliary)
+    
+    <span class="code-comment">// Move the nth disc from source to target</span>
+    print("Move disc " + n + " from " + source + " to " + target)
+    
+    <span class="code-comment">// Move n-1 discs from auxiliary to target</span>
+    towerOfHanoi(n - 1, auxiliary, source, target)
+}</pre>
+                        <p>The key insight is that we're breaking down the problem of moving n discs into smaller subproblems:</p>
+                        <ul>
+                            <li>First, we move n-1 discs out of the way</li>
+                            <li>Then move the largest disc to its final destination</li>
+                            <li>Finally, move the n-1 discs to their final destination</li>
+                        </ul>
+                        <p>This is the essence of recursive thinking - solving a problem by breaking it down into smaller instances of the same problem.</p>
+                    </div>
+
+                    <div class="learn-section">
+                        <h2>Solution Visualization</h2>
+                        <p>For a Tower of Hanoi puzzle with n discs, the minimum number of moves required is 2<sup>n</sup> - 1.</p>
+                        <div class="solution-viewer">
+                            <div class="solution-header">
+                                <div class="disc-selector">
+                                    <label for="solution-disc-count">Disc Count:</label>
+                                    <select id="solution-disc-count">
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+                                <div class="solution-info">
+                                    <span id="min-moves">Minimum 7 Moves</span>
+                                </div>
+                            </div>
+                            <div class="solution-steps" id="solution-steps">
+                                <!-- Solution steps will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="learn-section">
+                        <h2>Educational Notes</h2>
+                        <p>The Tower of Hanoi demonstrates several important computer science concepts:</p>
+                        <ul>
+                            <li><strong>Recursion:</strong> Breaking complex problems into simpler subproblems</li>
+                            <li><strong>Algorithmic Complexity:</strong> The time complexity of the optimal solution is O(2<sup>n</sup>)</li>
+                            <li><strong>Problem Decomposition:</strong> Solving problems by dividing them into smaller, manageable tasks</li>
+                            <li><strong>Base Case Identification:</strong> Recognizing when a problem can be solved directly</li>
+                        </ul>
+                        <p>The exponential growth of moves (2<sup>n</sup> - 1) demonstrates why recursive algorithms can be inefficient for large inputs, making this puzzle an excellent teaching tool for algorithm analysis.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Highscores Tab -->
+            <div id="highscores" class="tab-content">
+                <div class="highscores-container">
+                    <div class="highscore-filters">
+                        <div class="disc-selector">
+                            <label for="highscore-disc-filter">Filter by discs:</label>
+                            <select id="highscore-disc-filter">
+                                <option value="all">All</option>
+                                <option value="3">3 Discs</option>
+                                <option value="4">4 Discs</option>
+                                <option value="5">5 Discs</option>
+                                <option value="6">6 Discs</option>
+                                <option value="7">7 Discs</option>
+                            </select>
+                        </div>
+                    </div>
+                    <table class="highscore-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Discs</th>
+                                <th>Moves</th>
+                                <th>Time</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="highscore-table-body">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container">
+        <!-- Toast notifications will be added here by JavaScript -->
+    </div>
+
+    <!-- Player Modal -->
+    <div class="modal-overlay" id="player-modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Player Information</h3>
+                <button class="modal-close" id="player-modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="player-name">Enter Your Name:</label>
+                    <input type="text" id="player-name" class="form-control" placeholder="Your Name" maxlength="15">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="game-button" id="save-player-btn">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Complete Modal -->
+    <div class="modal-overlay" id="game-complete-modal-overlay">
+        <div class="modal game-complete-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Puzzle Completed!</h3>
+                <button class="modal-close" id="game-complete-modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="game-complete-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2>Congratulations!</h2>
+                <p>You've successfully completed the Tower of Hanoi puzzle.</p>
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="complete-moves">0</div>
+                        <div class="stat-label">Moves</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="complete-time">00:00</div>
+                        <div class="stat-label">Time</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="complete-score">0</div>
+                        <div class="stat-label">Score</div>
+                    </div>
+                </div>
+                <div class="promo-text">
+                    Can you solve it with more discs or fewer moves?
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="game-button" id="play-again-btn">
+                    <i class="fas fa-redo"></i> Play Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import/Export Modal -->
+    <div class="modal-overlay" id="import-export-modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Import/Export Game</h3>
+                <button class="modal-close" id="import-export-modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>You can export your current game state to continue later or share with others.</p>
+                <div class="form-group">
+                    <label for="export-json">Game State JSON:</label>
+                    <textarea id="export-json" class="exported-json" readonly></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="import-json">Import Game State:</label>
+                    <textarea id="import-json" class="exported-json" placeholder="Paste game state JSON here..."></textarea>
+                </div>
+                <div class="import-export-controls">
+                    <button class="game-button" id="copy-export-btn">
+                        <i class="fas fa-copy"></i> Copy Export
+                    </button>
+                    <button class="game-button" id="import-game-btn">
+                        <i class="fas fa-file-import"></i> Import Game
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to JavaScript file -->
+    <script>
+        /**
+ * Tower of Hanoi Game
+ * A beautiful implementation of the Tower of Hanoi puzzle with vanilla JavaScript
+ * Created for educational purposes to teach recursion
+ */
+
+// Game state
+const gameState = {
+    discs: 3,
+    towers: [[], [], []],
+    selectedTower: null,
+    moves: 0,
+    startTime: null,
+    timer: null,
+    elapsedTime: 0,
+    gameActive: false,
+    player: {
+        name: "Guest",
+        highScores: []
+    },
+    hintIndex: 0,
+    solution: [],
+    draggingDisc: null
+};
+
+// DOM Elements
+const elements = {
+    discCount: document.getElementById('disc-count'),
+    newGameBtn: document.getElementById('new-game-btn'),
+    hintBtn: document.getElementById('hint-btn'),
+    importExportBtn: document.getElementById('import-export-btn'),
+    movesCount: document.getElementById('moves-count'),
+    timer: document.getElementById('timer'),
+    towers: Array.from(document.querySelectorAll('.tower')),
+    gameStatus: document.querySelector('.game-status'),
+    playerName: document.querySelector('.player-name'),
+    playerScore: document.querySelector('.player-score'),
+    playerAvatar: document.querySelector('.player-avatar'),
+    solutionDiscCount: document.getElementById('solution-disc-count'),
+    solutionSteps: document.getElementById('solution-steps'),
+    minMoves: document.getElementById('min-moves'),
+    highscoreFilter: document.getElementById('highscore-disc-filter'),
+    highscoreTableBody: document.getElementById('highscore-table-body'),
+    playerNameInput: document.getElementById('player-name'),
+    savePlayerBtn: document.getElementById('save-player-btn'),
+    playerModalOverlay: document.getElementById('player-modal-overlay'),
+    playerModalClose: document.getElementById('player-modal-close'),
+    gameCompleteModalOverlay: document.getElementById('game-complete-modal-overlay'),
+    gameCompleteModalClose: document.getElementById('game-complete-modal-close'),
+    completeMovesValue: document.getElementById('complete-moves'),
+    completeTimeValue: document.getElementById('complete-time'),
+    completeScoreValue: document.getElementById('complete-score'),
+    playAgainBtn: document.getElementById('play-again-btn'),
+    importExportModalOverlay: document.getElementById('import-export-modal-overlay'),
+    importExportModalClose: document.getElementById('import-export-modal-close'),
+    exportJson: document.getElementById('export-json'),
+    importJson: document.getElementById('import-json'),
+    copyExportBtn: document.getElementById('copy-export-btn'),
+    importGameBtn: document.getElementById('import-game-btn'),
+    tabButtons: document.querySelectorAll('.tab-button'),
+    tabContents: document.querySelectorAll('.tab-content')
+};
+
+// Initialize the game
+function init() {
+    loadPlayerData();
+    updatePlayerDisplay();
+    setupEventListeners();
+    updateHighscoresTable();
+    generateSolutionSteps();
+    setupDragAndDrop();
+}
+
+// Set up all event listeners
+function setupEventListeners() {
+    // Tab switching
+    elements.tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            switchTab(tabId);
+        });
+    });
+
+    // Game controls
+    elements.newGameBtn.addEventListener('click', startNewGame);
+    elements.hintBtn.addEventListener('click', showHint);
+    elements.importExportBtn.addEventListener('click', openImportExportModal);
+
+    // Tower interaction
+    elements.towers.forEach(tower => {
+        tower.addEventListener('click', () => handleTowerClick(tower));
+    });
+
+    // Solution visualization
+    elements.solutionDiscCount.addEventListener('change', generateSolutionSteps);
+
+    // Highscore filtering
+    elements.highscoreFilter.addEventListener('change', updateHighscoresTable);
+
+    // Player modal
+    elements.savePlayerBtn.addEventListener('click', savePlayerInfo);
+    elements.playerModalClose.addEventListener('click', () => closeModal(elements.playerModalOverlay));
+
+    // Game complete modal
+    elements.playAgainBtn.addEventListener('click', () => {
+        closeModal(elements.gameCompleteModalOverlay);
+        startNewGame();
+    });
+    elements.gameCompleteModalClose.addEventListener('click', () => closeModal(elements.gameCompleteModalOverlay));
+
+    // Import/Export modal
+    elements.copyExportBtn.addEventListener('click', copyExportToClipboard);
+    elements.importGameBtn.addEventListener('click', importGameState);
+    elements.importExportModalClose.addEventListener('click', () => closeModal(elements.importExportModalOverlay));
+}
+
+// Setup drag and drop functionality
+function setupDragAndDrop() {
+    // Make discs draggable
+    document.addEventListener('mousedown', e => {
+        if (!gameState.gameActive) return;
+        
+        const disc = e.target.closest('.disc');
+        if (!disc) return;
+        
+        // Check if disc is on top of its tower
+        const tower = disc.closest('.tower');
+        const towerIndex = parseInt(tower.getAttribute('data-tower')) - 1;
+        const discsInTower = tower.querySelectorAll('.disc');
+        
+        if (disc !== discsInTower[discsInTower.length - 1]) {
+            // Not the top disc
+            showToast('warning', 'Invalid Move', 'You can only move the top disc');
+            return;
+        }
+        
+        // Start dragging
+        gameState.draggingDisc = {
+            element: disc,
+            fromTower: towerIndex,
+            initialX: e.clientX,
+            initialY: e.clientY,
+            offsetX: e.clientX - disc.getBoundingClientRect().left,
+            offsetY: e.clientY - disc.getBoundingClientRect().top
+        };
+        
+        disc.classList.add('dragging');
+        
+        // Position the disc at cursor
+        disc.style.position = 'fixed';
+        disc.style.zIndex = '1000';
+        disc.style.pointerEvents = 'none';
+        
+        updateDraggingPosition(e);
+    });
+    
+    document.addEventListener('mousemove', e => {
+        if (gameState.draggingDisc) {
+            updateDraggingPosition(e);
+        }
+    });
+    
+    document.addEventListener('mouseup', e => {
+        if (!gameState.draggingDisc) return;
+        
+        const disc = gameState.draggingDisc.element;
+        const fromTower = gameState.draggingDisc.fromTower;
+        
+        // Reset disc styling
+        disc.classList.remove('dragging');
+        disc.style.position = '';
+        disc.style.top = '';
+        disc.style.left = '';
+        disc.style.zIndex = '';
+        disc.style.pointerEvents = '';
+        
+        // Find the tower the disc is being dropped on
+        const targetElement = document.elementFromPoint(e.clientX, e.clientY);
+        const targetTower = targetElement?.closest('.tower');
+        
+        if (targetTower) {
+            const toTower = parseInt(targetTower.getAttribute('data-tower')) - 1;
+            
+            // If dropped on a different tower, try to move
+            if (fromTower !== toTower) {
+                moveDisc(fromTower, toTower);
+            } else {
+                // Put the disc back where it came from
+                const tower = elements.towers[fromTower];
+                tower.appendChild(disc);
+            }
+        } else {
+            // Dropped outside a tower, return to original position
+            const tower = elements.towers[fromTower];
+            tower.appendChild(disc);
+        }
+        
+        gameState.draggingDisc = null;
+    });
+}
+
+// Update position of disc being dragged
+function updateDraggingPosition(e) {
+    if (!gameState.draggingDisc) return;
+    
+    const disc = gameState.draggingDisc.element;
+    
+    disc.style.left = (e.clientX - gameState.draggingDisc.offsetX) + 'px';
+    disc.style.top = (e.clientY - gameState.draggingDisc.offsetY) + 'px';
+}
+
+// Switch between tabs
+function switchTab(tabId) {
+    elements.tabButtons.forEach(button => {
+        if (button.getAttribute('data-tab') === tabId) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+
+    elements.tabContents.forEach(content => {
+        if (content.id === tabId) {
+            content.classList.add('active');
+        } else {
+            content.classList.remove('active');
+        }
+    });
+}
+
+// Start a new game
+function startNewGame() {
+    // Clear previous game state
+    stopTimer();
+    gameState.moves = 0;
+    gameState.elapsedTime = 0;
+    gameState.hintIndex = 0;
+    gameState.selectedTower = null;
+    gameState.discs = parseInt(elements.discCount.value);
+    gameState.gameActive = true;
+    
+    // Update UI
+    elements.movesCount.textContent = '0';
+    elements.timer.textContent = '00:00';
+    updateGameStatus('Game started! Move the discs to the rightmost tower.');
+    
+    // Clear towers in the UI
+    elements.towers.forEach(tower => {
+        const discs = tower.querySelectorAll('.disc');
+        discs.forEach(disc => disc.remove());
+    });
+    
+    // Initialize towers array
+    gameState.towers = [[], [], []];
+    
+    // Create discs on the first tower
+    for (let i = gameState.discs; i >= 1; i--) {
+        gameState.towers[0].push(i);
+        const discElement = createDiscElement(i);
+        elements.towers[0].appendChild(discElement);
+    }
+    
+    // Generate solution for hints
+    gameState.solution = solveTowerOfHanoi(gameState.discs, 0, 1, 2);
+    
+    // Start the timer
+    startTimer();
+    
+    // Show toast notification
+    showToast('success', 'Game Started', `Tower of Hanoi with ${gameState.discs} discs`);
+}
+
+// Create a disc element
+function createDiscElement(size) {
+    const disc = document.createElement('div');
+    disc.className = 'disc';
+    disc.setAttribute('data-size', size);
+    disc.style.setProperty('--size', size);
+    disc.textContent = size;
+    return disc;
+}
+
+// Handle tower clicks for disc movement
+function handleTowerClick(tower) {
+    if (!gameState.gameActive) return;
+    
+    const towerIndex = parseInt(tower.getAttribute('data-tower')) - 1;
+    
+    // If no tower is selected, select this tower if it has discs
+    if (gameState.selectedTower === null) {
+        if (gameState.towers[towerIndex].length === 0) {
+            showToast('warning', 'Empty Tower', 'This tower has no discs to move');
+            return;
+        }
+        
+        gameState.selectedTower = towerIndex;
+        tower.classList.add('highlight');
+        
+        // Highlight the top disc
+        const topDisc = tower.querySelector('.disc:last-child');
+        if (topDisc) topDisc.classList.add('disc-glow');
+        
+        return;
+    }
+    
+    // If this tower is already selected, deselect it
+    if (gameState.selectedTower === towerIndex) {
+        tower.classList.remove('highlight');
+        const topDisc = tower.querySelector('.disc:last-child');
+        if (topDisc) topDisc.classList.remove('disc-glow');
+        gameState.selectedTower = null;
+        return;
+    }
+    
+    // Try to move disc from selected tower to this tower
+    const fromTower = gameState.selectedTower;
+    const toTower = towerIndex;
+    
+    moveDisc(fromTower, toTower);
+}
+
+// Move a disc between towers
+function moveDisc(fromTower, toTower) {
+    // Get the top disc size from the source tower
+    const fromTowerStack = gameState.towers[fromTower];
+    const toTowerStack = gameState.towers[toTower];
+    
+    if (fromTowerStack.length === 0) {
+        showToast('error', 'Invalid Move', 'No discs to move from this tower');
+        resetTowerSelection();
+        return;
+    }
+    
+    const topDiscSize = fromTowerStack[fromTowerStack.length - 1];
+    
+    // Check if the move is valid (can't place larger disc on smaller one)
+    if (toTowerStack.length > 0 && toTowerStack[toTowerStack.length - 1] < topDiscSize) {
+        showToast('error', 'Invalid Move', 'Cannot place a larger disc on a smaller one');
+        elements.towers[toTower].classList.add('invalid');
+        
+        setTimeout(() => {
+            elements.towers[toTower].classList.remove('invalid');
+        }, 500);
+        
+        resetTowerSelection();
+        return;
+    }
+    
+    // Move is valid, update the game state
+    const disc = fromTowerStack.pop();
+    toTowerStack.push(disc);
+    
+    // Update the UI
+    const discElement = elements.towers[fromTower].querySelector('.disc:last-child');
+    if (discElement) {
+        discElement.classList.remove('disc-glow');
+        elements.towers[fromTower].removeChild(discElement);
+        elements.towers[toTower].appendChild(discElement);
+    }
+    
+    // Increment moves counter
+    gameState.moves++;
+    elements.movesCount.textContent = gameState.moves;
+    
+    // Reset tower selection
+    resetTowerSelection();
+    
+    // Check if the game is completed
+    checkGameCompletion();
+    
+    // Show move toast
+    showToast('info', 'Disc Moved', `Moved disc ${disc} from Tower ${String.fromCharCode(65 + fromTower)} to Tower ${String.fromCharCode(65 + toTower)}`);
+}
+
+// Reset tower selection highlighting
+function resetTowerSelection() {
+    if (gameState.selectedTower !== null) {
+        elements.towers[gameState.selectedTower].classList.remove('highlight');
+        gameState.selectedTower = null;
+    }
+}
+
+// Check if the game is completed
+function checkGameCompletion() {
+    // Game is complete when all discs are on the third tower
+    if (gameState.towers[2].length === gameState.discs) {
+        gameCompleted();
+    }
+}
+
+// Handle game completion
+function gameCompleted() {
+    gameState.gameActive = false;
+    stopTimer();
+    
+    // Calculate score
+    const optimalMoves = Math.pow(2, gameState.discs) - 1;
+    const score = calculateScore(gameState.discs, gameState.moves, optimalMoves, gameState.elapsedTime);
+    
+    // Update highscores
+    updateHighScore(score);
+    
+    // Update game complete modal
+    elements.completeMovesValue.textContent = gameState.moves;
+    elements.completeTimeValue.textContent = formatTime(gameState.elapsedTime);
+    elements.completeScoreValue.textContent = score;
+    
+    // Open game complete modal
+    openModal(elements.gameCompleteModalOverlay);
+    
+    // Update game status
+    updateGameStatus(`Puzzle completed in ${gameState.moves} moves and ${formatTime(gameState.elapsedTime)}!`);
+    
+    // Show celebration toast
+    showToast('success', 'Puzzle Completed!', `Congratulations! Score: ${score}`);
+    
+    // Add celebration animation to the target tower
+    elements.towers[2].classList.add('celebrate');
+    setTimeout(() => {
+        elements.towers[2].classList.remove('celebrate');
+    }, 3000);
+}
+
+// Timer functions
+function startTimer() {
+    gameState.startTime = Date.now() - gameState.elapsedTime * 1000;
+    gameState.timer = setInterval(updateTimer, 1000);
+    updateTimer();
+}
+
+function stopTimer() {
+    if (gameState.timer) {
+        clearInterval(gameState.timer);
+        gameState.timer = null;
+    }
+}
+
+function updateTimer() {
+    const currentTime = Date.now();
+    gameState.elapsedTime = Math.floor((currentTime - gameState.startTime) / 1000);
+    elements.timer.textContent = formatTime(gameState.elapsedTime);
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Show hint
+function showHint() {
+    if (!gameState.gameActive || gameState.solution.length === 0) return;
+    
+    // Get the current hint
+    const hint = gameState.solution[gameState.hintIndex];
+    
+    // Show the hint toast
+    showToast('info', 'Hint', hint.message.replace('A', 'Tower A').replace('B', 'Tower B').replace('C', 'Tower C'));
+    
+    // Highlight the source and target towers
+    const sourceTower = elements.towers[hint.from.charCodeAt(0) - 65];
+    const targetTower = elements.towers[hint.to.charCodeAt(0) - 65];
+    
+    sourceTower.classList.add('hint-highlight');
+    targetTower.classList.add('hint-highlight');
+    
+    // Remove the highlight after 2 seconds
+    setTimeout(() => {
+        sourceTower.classList.remove('hint-highlight');
+        targetTower.classList.remove('hint-highlight');
+    }, 2000);
+    
+    // Move to the next hint, or loop back to the beginning
+    gameState.hintIndex = (gameState.hintIndex + 1) % gameState.solution.length;
+}
+
+// Update game status message
+function updateGameStatus(message) {
+    elements.gameStatus.textContent = message;
+}
+
+// Toast notification system
+function showToast(type, title, message) {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    toast.innerHTML = `
+        <div class="toast-icon">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+        </div>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-dismiss">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    const toastContainer = document.getElementById('toast-container');
+    toastContainer.appendChild(toast);
+    
+    // Add dismiss event listener
+    const dismissBtn = toast.querySelector('.toast-dismiss');
+    dismissBtn.addEventListener('click', () => {
+        toast.remove();
+    });
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 5000);
+}
+
+// Tower of Hanoi solver algorithm
+function solveTowerOfHanoi(n, source, auxiliary, target, moves = []) {
+    if (n === 1) {
+        moves.push({
+            disc: 1,
+            from: String.fromCharCode(65 + source),
+            to: String.fromCharCode(65 + target),
+            message: `Move disc 1 from ${String.fromCharCode(65 + source)} to ${String.fromCharCode(65 + target)}`
+        });
+        return moves;
+    }
+    
+    solveTowerOfHanoi(n - 1, source, target, auxiliary, moves);
+    
+    moves.push({
+        disc: n,
+        from: String.fromCharCode(65 + source),
+        to: String.fromCharCode(65 + target),
+        message: `Move disc ${n} from ${String.fromCharCode(65 + source)} to ${String.fromCharCode(65 + target)}`
+    });
+    
+    solveTowerOfHanoi(n - 1, auxiliary, source, target, moves);
+    
+    return moves;
+}
+
+// Generate solution steps for learning tab
+function generateSolutionSteps() {
+    const discCount = parseInt(elements.solutionDiscCount.value);
+    const minMoves = Math.pow(2, discCount) - 1;
+    
+    // Update min moves display
+    elements.minMoves.textContent = `Minimum ${minMoves} Moves`;
+    
+    // Generate solution
+    const solution = solveTowerOfHanoi(discCount, 0, 1, 2);
+    
+    // Clear previous solution steps
+    elements.solutionSteps.innerHTML = '';
+    
+    // Add solution steps
+    solution.forEach((step, index) => {
+        const stepElement = document.createElement('div');
+        stepElement.className = 'solution-step';
+        stepElement.innerHTML = `
+            <div class="step-number">${index + 1}</div>
+            <div class="step-instruction">${step.message}</div>
+        `;
+        elements.solutionSteps.appendChild(stepElement);
+    });
+}
+
+// Score calculation
+function calculateScore(discCount, movesMade, minMoves, timeInSeconds) {
+    // Base score depends on difficulty (number of discs)
+    const baseScore = discCount * 100;
+    
+    // Penalty for extra moves
+    const moveEfficiency = minMoves / movesMade;
+    
+    // Time factor (faster is better)
+    const timeExpected = minMoves * 5; // 5 seconds per minimum move as a baseline
+    const timeFactor = Math.max(0.5, Math.min(1.5, timeExpected / timeInSeconds));
+    
+    return Math.round(baseScore * moveEfficiency * timeFactor);
+}
+
+// Highscore management
+function updateHighScore(score) {
+    const highScore = {
+        player: gameState.player.name,
+        discs: gameState.discs,
+        moves: gameState.moves,
+        time: gameState.elapsedTime,
+        score: score,
+        date: new Date().toISOString()
+    };
+    
+    gameState.player.highScores.push(highScore);
+    
+    // Sort highscores by score (descending)
+    gameState.player.highScores.sort((a, b) => b.score - a.score);
+    
+    // Limit to top 20 scores
+    if (gameState.player.highScores.length > 20) {
+        gameState.player.highScores = gameState.player.highScores.slice(0, 20);
+    }
+    
+    // Update highscores display
+    updateHighscoresTable();
+    
+    // Save player data
+    savePlayerData();
+    
+    // Update player high score display
+    updatePlayerDisplay();
+}
+
+// Update highscores table
+function updateHighscoresTable() {
+    // Clear current table
+    elements.highscoreTableBody.innerHTML = '';
+    
+    // Get filter value
+    const filter = elements.highscoreFilter.value;
+    
+    // Filter scores based on selection
+    let filteredScores = [...gameState.player.highScores];
+    if (filter !== 'all') {
+        const discCount = parseInt(filter);
+        filteredScores = filteredScores.filter(score => score.discs === discCount);
+    }
+    
+    // If no scores, show empty state
+    if (filteredScores.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="7" style="text-align: center;">No scores yet. Complete a puzzle to see your scores here!</td>';
+        elements.highscoreTableBody.appendChild(row);
+        return;
+    }
+    
+    // Add scores to table
+    filteredScores.forEach((score, index) => {
+        const row = document.createElement('tr');
+        
+        // Add highlight class for top score
+        if (index === 0) {
+            row.classList.add('highlight');
+        }
+        
+        const dateObj = new Date(score.date);
+        const formattedDate = dateObj.toLocaleDateString();
+        
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${score.player}</td>
+            <td>${score.discs}</td>
+            <td>${score.moves}</td>
+            <td>${formatTime(score.time)}</td>
+            <td>${score.score}</td>
+            <td>${formattedDate}</td>
+        `;
+        
+        elements.highscoreTableBody.appendChild(row);
+    });
+}
+
+// Player management
+function loadPlayerData() {
+    const savedData = localStorage.getItem('towerOfHanoiPlayerData');
+    if (savedData) {
+        try {
+            const parsed = JSON.parse(savedData);
+            gameState.player = parsed;
+        } catch (error) {
+            console.error('Error parsing saved player data:', error);
+            // Show player modal in case of error
+            openModal(elements.playerModalOverlay);
+        }
+    } else {
+        // First time playing - show player modal
+        openModal(elements.playerModalOverlay);
+    }
+}
+
+function savePlayerData() {
+    try {
+        localStorage.setItem('towerOfHanoiPlayerData', JSON.stringify(gameState.player));
+    } catch (error) {
+        console.error('Error saving player data:', error);
+        showToast('error', 'Save Error', 'Could not save player data. Local storage might be disabled.');
+    }
+}
+
+function savePlayerInfo() {
+    const name = elements.playerNameInput.value.trim();
+    if (name) {
+        gameState.player.name = name;
+        updatePlayerDisplay();
+        savePlayerData();
+        closeModal(elements.playerModalOverlay);
+        showToast('success', 'Player Saved', `Welcome, ${name}!`);
+    } else {
+        showToast('warning', 'Invalid Name', 'Please enter a valid name');
+    }
+}
+
+function updatePlayerDisplay() {
+    elements.playerName.textContent = gameState.player.name;
+    elements.playerAvatar.textContent = gameState.player.name.charAt(0);
+    
+    // Get highest score
+    if (gameState.player.highScores.length > 0) {
+        const topScore = gameState.player.highScores[0].score;
+        elements.playerScore.textContent = `High Score: ${topScore}`;
+    } else {
+        elements.playerScore.textContent = 'High Score: 0';
+    }
+}
+
+// Modal management
+function openModal(modal) {
+    modal.classList.add('active');
+}
+
+function closeModal(modal) {
+    modal.classList.remove('active');
+}
+
+// Import/Export functionality
+function openImportExportModal() {
+    // Prepare export JSON
+    const exportData = {
+        discs: gameState.discs,
+        towers: gameState.towers,
+        moves: gameState.moves,
+        elapsedTime: gameState.elapsedTime,
+        gameActive: gameState.gameActive,
+        player: gameState.player.name,
+        date: new Date().toISOString()
+    };
+    
+    elements.exportJson.value = JSON.stringify(exportData, null, 2);
+    
+    // Open modal
+    openModal(elements.importExportModalOverlay);
+}
+
+function copyExportToClipboard() {
+    elements.exportJson.select();
+    document.execCommand('copy');
+    showToast('success', 'Copied', 'Game state JSON copied to clipboard');
+}
+
+function importGameState() {
+    try {
+        const jsonStr = elements.importJson.value.trim();
+        if (!jsonStr) {
+            showToast('warning', 'Empty Import', 'Please paste a valid game state JSON');
+            return;
+        }
+        
+        const importedState = JSON.parse(jsonStr);
+        
+        // Validate imported data
+        if (!importedState.discs || !Array.isArray(importedState.towers)) {
+            throw new Error('Invalid game state format');
+        }
+        
+        // Stop current game if active
+        if (gameState.gameActive) {
+            stopTimer();
+        }
+        
+        // Update game state
+        gameState.discs = importedState.discs;
+        gameState.towers = importedState.towers;
+        gameState.moves = importedState.moves || 0;
+        gameState.elapsedTime = importedState.elapsedTime || 0;
+        gameState.gameActive = importedState.gameActive || false;
+        gameState.hintIndex = 0;
+        
+        // Update disc selector to match imported state
+        elements.discCount.value = gameState.discs.toString();
+        
+        // Update UI
+        elements.movesCount.textContent = gameState.moves;
+        elements.timer.textContent = formatTime(gameState.elapsedTime);
+        updateGameStatus('Imported game state loaded');
+        
+        // Clear towers in the UI
+        elements.towers.forEach(tower => {
+            const discs = tower.querySelectorAll('.disc');
+            discs.forEach(disc => disc.remove());
+        });
+        
+        // Recreate discs on towers
+        gameState.towers.forEach((tower, towerIndex) => {
+            tower.forEach(discSize => {
+                const discElement = createDiscElement(discSize);
+                elements.towers[towerIndex].appendChild(discElement);
+            });
+        });
+        
+        // Generate solution for hints
+        gameState.solution = solveTowerOfHanoi(gameState.discs, 0, 1, 2);
+        
+        // Start timer if game is active
+        if (gameState.gameActive) {
+            startTimer();
+        }
+        
+        // Close modal
+        closeModal(elements.importExportModalOverlay);
+        
+        showToast('success', 'Game Imported', 'Game state has been successfully imported');
+        
+        // Switch to game tab
+        switchTab('game');
+    } catch (error) {
+        showToast('error', 'Import Failed', `Error: ${error.message}`);
+    }
+}
+
+// Handle keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (gameState.gameActive) {
+        // Number keys 1-3 to select towers
+        if (e.key >= '1' && e.key <= '3') {
+            const towerIndex = parseInt(e.key) - 1;
+            handleTowerClick(elements.towers[towerIndex]);
+        }
+        
+        // H key for hint
+        if (e.key.toLowerCase() === 'h') {
+            showHint();
+        }
+        
+        // Space to start a new game
+        if (e.key === ' ' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            startNewGame();
+        }
+    }
+});
+
+// Initialize the game
+document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
